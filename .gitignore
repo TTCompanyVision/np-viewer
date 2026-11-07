@@ -1,0 +1,13 @@
+# сборка
+/site/
+/np-viewer-site.zip
+__pycache__/
+*.pyc
+# локальное
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+.DS_Store
+# передача работы (личные пути, не публиковать)
+/HANDOFF_RU.md
