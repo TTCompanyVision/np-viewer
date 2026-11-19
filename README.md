@@ -35,7 +35,7 @@ Units are taken from the file (millimetres for STEP/IGES, metres for IFC, `meter
 ## What it can do
 
 - **Display:** file materials, clay, matcap, normals, UV checker, colour by material slot, X-ray, wireframe; wireframe overlay; studio / outdoor / even lighting
-- **Navigation:** ViewCube with 26 directions, perspective and orthographic views, 1 / 2 / 4 viewports, walk mode, touch gestures
+- **Navigation:** View cube (six standard views) and an isometric button, perspective and orthographic views, 1 / 2 / 4 viewports, walk mode, touch gestures
 - **Inspect:** object tree with search, isolate and hide; exploded view; section plane; distance measuring with vertex snapping; statistics
 - **Animation** playback for FBX, glTF and Alembic
 - **Compare two versions** of a model: the second file is overlaid on the first and coloured by deviation (added material warm, removed cool, within tolerance grey), with max / mean deviation and the share within tolerance
@@ -103,7 +103,7 @@ Own code — [MIT](LICENSE). Bundled libraries keep their own licenses — see [
 
 **Возможности:**
 - режимы отображения (материалы, глина, matcap, нормали, UV-шахматка, цвет по слотам, рентген, каркас), освещение студия/улица/ровный;
-- ViewCube на 26 направлений, перспектива и орто, 1/2/4 вида, режим прогулки, управление касаниями;
+- Куб вида (шесть стандартных видов) и кнопка изометрии, перспектива и орто, 1/2/4 вида, режим прогулки, управление касаниями;
 - дерево объектов с поиском и изоляцией, разнесение деталей, сечение, рулетка с притяжением к вершинам, статистика;
 - анимация FBX, glTF и Alembic;
 - **сравнение двух версий модели**: вторая ложится поверх первой и раскрашивается по отклонению (добавлено — тёплым, снято — холодным, в допуске — серым), с максимумом, средним и долей в допуске;

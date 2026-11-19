@@ -211,6 +211,9 @@
             display:flex; align-items:center; gap:5px; transition:background .15s, color .15s; }
   .vlabel:hover { background:var(--panel); color:var(--text); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); }
   .vmax { position:absolute; pointer-events:auto; }
+  .vbtn { position:absolute; width:18px; height:18px; padding:0; border:0; border-radius:1px; background:none; color:var(--dim); pointer-events:auto; cursor:pointer;
+          display:flex; align-items:center; justify-content:center; transition:background .15s, color .15s; }
+  .vbtn:hover { background:var(--panel); color:var(--text); }
   .gizmo { position:absolute; width:92px; height:92px; overflow:visible; }
   .gizmo .rg { pointer-events:auto; cursor:pointer; fill:var(--acc-h); fill-opacity:0; stroke:none; transition:fill-opacity .08s; }
   .gizmo .rg.hl { fill-opacity:.2; }
@@ -765,7 +768,7 @@ function endOrbit(e) {
 canvas.addEventListener('pointerup', endOrbit);
 canvas.addEventListener('pointercancel', endOrbit);
 
-// ---------------------------------------------------------------- окна вида 1/2/3/4, как в 3ds Max
+// ---------------------------------------------------------------- окна вида 1/2/3/4
 // Один холст и одна сцена: окна — его участки (scissor), модель в памяти видеокарты одна на все.
 const VIEW_NAMES = { persp: 'Перспектива', top: 'Сверху', front: 'Спереди', left: 'Слева', right: 'Справа', back: 'Сзади' };
 const ORTHO = {
@@ -850,6 +853,12 @@ function buildViewDom() {
       const g = makeGizmo();
       Object.assign(g.svg.style, { top: gTop + 'px', right: right + 'px' });
       div.append(g.svg); gizmos.push(g);
+      const gi = el('button', 'vbtn giso');
+      gi.innerHTML = '<svg viewBox="0 0 18 18" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="miter"><path d="M9 2 15.5 5.5v7L9 16l-6.5-3.5v-7Z"/><path d="M9 9V16M9 9 2.5 5.5M9 9l6.5-3.5"/></svg>';
+      gi.dataset.tip = 'Изометрия'; gi.setAttribute('aria-label', 'Изометрия');
+      Object.assign(gi.style, { top: (gTop + 92 + 2) + 'px', right: (right + 37) + 'px' });
+      gi.onclick = () => viewAlong(new THREE.Vector3(1, 1, 1));
+      div.append(gi);
     } else {
       const sb = el('div', 'scalebar');
       Object.assign(sb.style, { left: '14px', bottom: (s.y + s.h < H - 1 ? 12 : s.x < 10 ? 46 : 14) + 'px' });   // не на счётчике
@@ -1561,9 +1570,8 @@ function frame(keepDirection = true, topView = false) {
   return { size, cell: null };
 }
 
-// ---------------------------------------------------------------- куб вида (как ViewCube в 3ds Max)
-// Тонкие рыжие рёбра без заливки, подписи на гранях. Каждая грань разбита 3×3: центр — вид с грани,
-// полосы у рёбер — вид с ребра, углы — изометрия. Под курсором подсвечивается вся зона (на всех гранях сразу).
+// ---------------------------------------------------------------- куб вида
+// Тонкие рыжие рёбра без заливки, подписи на гранях; щелчок по грани — вид с этой грани.
 const AXIS_COLORS = { x: '#E0594E', y: '#6CB152', z: '#4C8BF0' };
 // ось модели → направление в мире (с галкой «Z вверх» модель повёрнута на −90° вокруг X)
 function modelAxis(a) {
@@ -1572,16 +1580,15 @@ function modelAxis(a) {
   if (a === 'y') return zup ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 1, 0);
   return zup ? new THREE.Vector3(0, 1, 0) : new THREE.Vector3(0, 0, 1);
 }
-const CUBE_K = 0.62;      // доля грани под «вид с грани»
+const CUBE_SEG = host?.cubeSeg || [[-1, 1, 0]];   // зоны грани: [от, до, сдвиг]; по умолчанию одна зона = вся грань
 const CUBE_FACES = [
   [[0, 1, 0], [0, 0, -1], 'СВЕРХУ'], [[0, -1, 0], [0, 0, 1], 'СНИЗУ'], [[0, 0, 1], [0, 1, 0], 'СПЕРЕДИ'],
   [[0, 0, -1], [0, 1, 0], 'СЗАДИ'], [[1, 0, 0], [0, 1, 0], 'СПРАВА'], [[-1, 0, 0], [0, 1, 0], 'СЛЕВА'],
 ].map(([n, u, name]) => {
   const N = new THREE.Vector3(...n), U = new THREE.Vector3(...u), R = new THREE.Vector3().crossVectors(U, N);
   const at = (a, b) => N.clone().addScaledVector(R, a).addScaledVector(U, b);
-  const SEG = [[-1, -CUBE_K, -1], [-CUBE_K, CUBE_K, 0], [CUBE_K, 1, 1]];
   const regions = [];
-  for (const [u0, u1, su] of SEG) for (const [v0, v1, sv] of SEG) {
+  for (const [u0, u1, su] of CUBE_SEG) for (const [v0, v1, sv] of CUBE_SEG) {
     const dir = N.clone().addScaledVector(R, su).addScaledVector(U, sv);
     regions.push({ dir, key: `${dir.x},${dir.y},${dir.z}`, c: [at(u0, v0), at(u1, v0), at(u1, v1), at(u0, v1)] });
   }
@@ -3511,6 +3518,7 @@ function commands() {
   if (model) for (const [k, n] of EXPORTS) add('Файл', `Экспорт в ${n}`, () => exportModel(k));
   if (model) add('Инструменты', cmp.on ? 'Выйти из сравнения' : 'Сравнить с другой версией…', pickCompare, null, cmp.on);
   add('Вид', 'Кадрировать', frameActive, 'F');
+  add('Вид', 'Вид: изометрия', () => viewAlong(new THREE.Vector3(1, 1, 1)));
   for (const [k, n] of Object.entries(VIEW_NAMES)) add('Вид', `Окно: ${n}`, () => setViewType(activeSlot().i, k), null, activeSlot().type === k);
   for (const n of [1, 2, 3, 4]) add('Вид', `Раскладка: ${n} ${n === 1 ? 'окно' : 'окна'}`, () => setLayout(n), null, views.layout === n);
   add('Вид', 'Развернуть окно / вернуть', () => toggleMax(), 'Alt+W');
@@ -3595,7 +3603,7 @@ $('scrim').onclick = () => { closePalette(); closeHelp(); };
 
 // ---------------------------------------------------------------- справка по клавишам
 const HELP = [
-  ['Навигация', [['Вращать вокруг точки', 'ЛКМ'], ['Сдвиг', 'ПКМ'], ['Зум', 'Колесо'], ['Повернуть свет', 'Shift + ЛКМ'], ['Кадрировать', 'F'], ['Вид с грани, ребра, угла', 'щелчок по кубу']]],
+  ['Навигация', [['Вращать вокруг точки', 'ЛКМ'], ['Сдвиг', 'ПКМ'], ['Зум', 'Колесо'], ['Повернуть свет', 'Shift + ЛКМ'], ['Кадрировать', 'F'], ['Вид с грани', 'щелчок по кубу']]],
   ['Отображение', [['Режимы', '1 – 7'], ['Только каркас', 'D'], ['Каркас поверх', 'W'], ['Сетка пола', 'G'], ['Угол обзора', '[  ]']]],
   ['Инструменты', [['Рулетка', 'M'], ['Удалить последний замер', 'Delete'], ['Сечение', 'S'], ['Прогулка', 'P'], ['Витрина', 'T'], ['Выход из инструмента', 'Esc']]],
   ['Выделение', [['Выбрать', 'щелчок'], ['Изолировать', 'I'], ['Скрыть', 'H'], ['Показать всё', 'Shift + H'], ['Снять', 'Esc']]],

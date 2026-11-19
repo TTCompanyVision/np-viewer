@@ -36,7 +36,7 @@ const EN = {
   '(линии)': '(lines)', '(без имени)': '(unnamed)', '(без материала)': '(no material)',
   'FBX по умолчанию': 'FBX default', 'Shift + ЛКМ': 'Shift + LMB', 'Xform-узлы': 'Xform nodes',
   'Анимации': 'Animations', 'Анимация': 'Animation', 'Вернуть все окна': 'Restore all viewports', 'Вершины (рендер)': 'Vertices (render)',
-  'Вид': 'View', 'Вид в окне': 'Viewport view', 'Вид с грани, ребра, угла': 'View from a face, edge or corner',
+  'Вид': 'View', 'Вид в окне': 'Viewport view', 'Вид с грани': 'View from a face', 'Изометрия': 'Isometric', 'Вид: изометрия': 'View: isometric',
   'Вращать вокруг точки': 'Orbit around point', 'Вращение на витрине': 'Turntable', 'Все команды': 'All commands',
   'Выбрать': 'Select', 'Выделение': 'Selection', 'Выключенные слои': 'Disabled layers', 'Выход из инструмента': 'Exit tool',
   'Габарит X·Y·Z': 'Size X·Y·Z', 'Габарит, м': 'Size, m', 'Горячие клавиши': 'Keyboard shortcuts', 'Единицы': 'Units',

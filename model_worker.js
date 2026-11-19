@@ -125,7 +125,7 @@ async function parse(ext, buffer, name, files, texBase) {
       obj.add(Object.assign(new THREE.Points(g, pm), { name: base }));
       extra.rows = [['Точки', Math.round(g.attributes.position.count).toLocaleString('ru-RU')]];
     }
-  } else if (ext === '.3ds') {                 // формат 3ds Max: Z вверх, свой масштаб файл применяет сам
+  } else if (ext === '.3ds') {                 // формат 3DS: Z вверх, свой масштаб файл применяет сам
     const { TDSLoader } = await import(L + 'loaders/TDSLoader.js');
     obj = new TDSLoader(manager).parse(buffer, '');
     extra = { zup: true };
